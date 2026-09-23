@@ -1,9 +1,9 @@
 import React from 'react';
 
 const steps = [
-  ['01', 'Observe', 'O bloco se move de um lado para o outro.'],
-  ['02', 'Solte', 'Clique no botão ou aperte a tecla espaço.'],
-  ['03', 'Equilibre', 'Acerte o próximo bloco para subir cada vez mais.'],
+  ['01', 'Leia o ritmo', 'O bloco cruza a torre de um lado para o outro. Cada nível acelera um pouco.'],
+  ['02', 'Solte no ponto', 'Clique no tabuleiro, no botão ou aperte espaço para posicionar o bloco.'],
+  ['03', 'Busque o combo', 'Encaixes precisos dão bônus e aumentam seu combo. Um erro encerra a rodada.'],
 ];
 
 export default function HowToPlay() {
@@ -11,7 +11,7 @@ export default function HowToPlay() {
     <section className="how-to-play" id="como-jogar">
       <div className="how-heading">
         <p className="eyebrow">Como jogar</p>
-        <h2>Um jogo simples<br /><em>de explicar.</em></h2>
+        <h2>Fácil de começar.<br /><em>Difícil de largar.</em></h2>
       </div>
 
       <div className="steps-list">

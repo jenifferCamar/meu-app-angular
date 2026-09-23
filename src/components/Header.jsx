@@ -9,7 +9,7 @@ export default function Header() {
 
       <nav className="nav-bar" aria-label="Navegação principal">
         <a href="#como-jogar">Como jogar</a>
-        <span className="header-status"><i /> jogo local</span>
+        <span className="header-status"><i /> modo solo · sem IA</span>
       </nav>
     </header>
   );

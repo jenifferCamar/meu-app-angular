@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function GameBoard({ stack, activeBlock, onDrop, status }) {
+export default function GameBoard({ stack, activeBlock, onDrop, status, feedback, towerHeight }) {
   const cameraOffset = Math.max(0, (stack.length - 10) * 34);
 
   return (
@@ -17,7 +17,10 @@ export default function GameBoard({ stack, activeBlock, onDrop, status }) {
         }
       }}
     >
-      <span className="board-label">torre em construção</span>
+      <div className="board-topline">
+        <span className="board-label">torre em construção</span>
+        <span className="board-height">{String(towerHeight).padStart(2, '0')} blocos</span>
+      </div>
       <div className="board-stars" aria-hidden="true">
         <span className="star star-one">✦</span>
         <span className="star star-two">·</span>
@@ -50,12 +53,25 @@ export default function GameBoard({ stack, activeBlock, onDrop, status }) {
       )}
 
       <div className="board-floor" aria-hidden="true" />
-      <span className="board-hint">clique para soltar</span>
+      {feedback && (
+        <div className={`drop-feedback ${feedback.type}`} key={feedback.id} aria-live="polite">
+          <strong>{feedback.message}</strong>
+          {feedback.points > 0 && <span>+{feedback.points} pts</span>}
+        </div>
+      )}
+      <span className="board-hint">clique ou pressione espaço</span>
       {status === 'ready' && (
         <div className="board-overlay">
           <span>Pronto?</span>
           <strong>Monte sua torre</strong>
           <small>Comece pela base e mantenha o ritmo.</small>
+        </div>
+      )}
+      {status === 'lost' && (
+        <div className="board-overlay lost-overlay">
+          <span>Fim de rodada</span>
+          <strong>A torre pediu pausa</strong>
+          <small>Recomece e tente superar seu recorde.</small>
         </div>
       )}
     </div>

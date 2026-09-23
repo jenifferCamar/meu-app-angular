@@ -33,11 +33,13 @@ export default function Game() {
   });
   const [status, setStatus] = useState('ready');
   const [round, setRound] = useState(0);
+  const [combo, setCombo] = useState(0);
+  const [feedback, setFeedback] = useState(null);
   const activeRef = useRef(activeBlock);
   const stackRef = useRef(stack);
 
   const level = Math.floor(score / 50) + 1;
-  const speed = 0.13 + level * 0.025;
+  const speed = 0.13 + level * 0.025 + combo * 0.004;
   const towerHeight = stack.length - 1;
 
   useEffect(() => {
@@ -88,11 +90,17 @@ export default function Game() {
     const overlapWidth = overlapRight - overlapLeft;
 
     if (overlapWidth <= 1) {
+      setCombo(0);
+      setFeedback({ type: 'miss', message: 'Quase!', points: 0, id: Date.now() });
       setStatus('lost');
       return;
     }
 
-    const nextScore = score + 10;
+    const precision = overlapWidth / Math.min(current.width, previous.width);
+    const isPerfect = precision >= 0.9;
+    const nextCombo = isPerfect ? combo + 1 : 0;
+    const points = isPerfect ? 15 + combo * 5 : 10;
+    const nextScore = score + points;
     const nextBlock = {
       id: `placed-${round}`,
       width: overlapWidth,
@@ -105,6 +113,13 @@ export default function Game() {
 
     setStack(nextStack);
     setScore(nextScore);
+    setCombo(nextCombo);
+    setFeedback({
+      type: isPerfect ? 'perfect' : 'good',
+      message: isPerfect ? 'Encaixe perfeito!' : 'Bom encaixe!',
+      points,
+      id: Date.now(),
+    });
     setRound((currentRound) => currentRound + 1);
 
     if (nextScore > bestScore) {
@@ -122,7 +137,7 @@ export default function Game() {
     setActiveBlock(nextActive);
     activeRef.current = nextActive;
     stackRef.current = nextStack;
-  }, [bestScore, round, score, status]);
+  }, [bestScore, combo, round, score, status]);
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -142,6 +157,8 @@ export default function Game() {
     setActiveBlock(nextActive);
     setScore(0);
     setRound(0);
+    setCombo(0);
+    setFeedback(null);
     setStatus('playing');
     activeRef.current = nextActive;
     stackRef.current = [BASE_BLOCK];
@@ -169,14 +186,21 @@ export default function Game() {
             <strong>Torre de blocos</strong>
           </div>
           <div className="progress-area">
-            <span>{towerHeight} {towerHeight === 1 ? 'bloco' : 'blocos'}</span>
-            <div className="progress-bar" aria-label={`${towerHeight} blocos empilhados`}>
-              <i style={{ width: `${towerHeight === 0 ? 0 : ((towerHeight - 1) % 10 + 1) * 10}%` }} />
+            <span>próximo nível · {Math.max(0, 50 - (score % 50))} pts</span>
+            <div className="progress-bar" aria-label={`${score % 50} de 50 pontos para o próximo nível`}>
+              <i style={{ width: `${(score % 50) * 2}%` }} />
             </div>
           </div>
         </div>
-        <ScoreBoard score={score} bestScore={bestScore} level={level} />
-        <GameBoard stack={stack} activeBlock={activeBlock} onDrop={dropBlock} status={status} />
+        <ScoreBoard score={score} bestScore={bestScore} level={level} combo={combo} />
+        <GameBoard
+          stack={stack}
+          activeBlock={activeBlock}
+          onDrop={dropBlock}
+          status={status}
+          feedback={feedback}
+          towerHeight={towerHeight}
+        />
 
         <div className="game-controls">
           {status === 'ready' ? (
@@ -189,8 +213,8 @@ export default function Game() {
             </button>
           ) : (
             <div className="result-message" role="status">
-              <strong>Game over</strong>
-              <span>O bloco não encaixou.</span>
+              <strong>Torre interrompida</strong>
+              <span>{towerHeight} {towerHeight === 1 ? 'bloco' : 'blocos'} · {score} pontos</span>
             </div>
           )}
           <button className="restart-button" type="button" onClick={restartGame}>
